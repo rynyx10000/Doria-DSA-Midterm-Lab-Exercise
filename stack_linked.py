@@ -14,27 +14,45 @@ the stack itself.
 
 
 class Node:
-    """Written for you."""
-
     __slots__ = ("value", "next")
 
     def __init__(self, value, nxt=None):
         self.value = value
         self.next = nxt
 
-
 class LinkedStack:
 
     def __init__(self):
-        """Step 1. An empty stack has no top node and holds no items.
-
-        Keep a running count. Walking the list to answer size() would make an
-        O(1) question cost O(n).
-        """
-        raise NotImplementedError("Step 1: set self._top to None and self._size to 0")
+        self._top = None
+        self._size = 0
 
     def push(self, item):
-        """Step 2. New node on the front, then update the count.
+
+        self._top = Node(item, self._top)
+        self._size += 1
+
+    def pop(self):
+
+        if self.is_empty():
+            raise IndexError("pop from an empty stack")
+        node = self._top
+        self._top = node.next
+        self._size -= 1
+        return node.value
+
+    def peek(self):
+        if self.is_empty():
+            raise IndexError("peek at an empty stack")
+        return self._top.value
+
+    def is_empty(self):
+        return self._top is None
+
+    def size(self):
+        return self._size
+
+    def __len__(self):
+        return self.size()        """Step 2. New node on the front, then update the count.
 
         Order matters. Build the node pointing at the current top FIRST,
         then move self._top. Reverse the two lines and you lose the list.
