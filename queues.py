@@ -16,25 +16,113 @@ The queue holds a fixed number of slots. It does not grow.
 class CircularQueue:
 
     def __init__(self, capacity):
-        """Step 1. A list of `capacity` Nones, a front index, and a count.
-
-        Raise ValueError if capacity is less than 1.
-
-        Keep a COUNT, not a rear index alone. With only front and rear you
-        cannot tell a full queue from an empty one: both give front == rear.
-        A count answers both questions with no ambiguity.
-        """
-        raise NotImplementedError("Step 1: validate capacity, then set up the slots, front, and count")
+       if capacity < 1:
+           raise ValueError("capacity must be at least 1")
+       self._items = [None] * capacity
+       self.front = 0
+       self._count = 0
 
     def enqueue(self, item):
-        """Step 2. Add at the rear. Raise OverflowError when full.
+        if self.is_full():
+            raise OverflowError("enqueue on full queue")
+        rear = (self.front + self._count) % len(self._items)
+        self._items[rear] = item
+        self._count += 1
 
-        You are not storing a rear index, so compute it:
-            rear = (front + count) % capacity
-        Write the item there, then increase the count.
+    def dequeue(self):
+        """Step 3. Remove and return the front item. IndexError when empty.
+
+        Read the item at front, clear that slot to None so nothing stale is
+        left behind, advance front with modulo, decrease the count, return.
         """
-        raise NotImplementedError("Step 2: guard for full, compute the rear with modulo, store, count up")
+        if self.is_empty():
+            raise IndexError("dequeue on empty queue")
+        item = self._items[self.front]
+        self._items[self.front] = None
+        self.front = (self.front + 1) % len(self._items)
+        self._count -= 1
+        return item
 
+    def peek(self):
+        """Step 4. Return the front item without removing it."""
+        if self.is_empty():
+            raise IndexError("peek on empty queue")
+        return self._items[self.front]
+
+    def is_empty(self):
+        """Step 5. True when the count is 0."""
+        return self._count == 0
+
+    def is_full(self):
+        """Step 6. True when the count has reached the capacity."""
+        return self._count == len(self._items)
+
+    def size(self):
+        """Step 7. Return the count."""
+        return self._count
+
+    def slots(self):
+        """Written for you. Returns a copy of the raw list.
+
+        For inspecting wraparound during the demonstration. Not part of the
+        ADT, and your other methods must never call it.
+        """
+        return list(self._items)
+
+
+class Deque:
+    """A queue you may add to and remove from at both ends."""
+
+    def __init__(self):
+        """Step 8. Create the empty list."""
+        self._items = []
+
+    def add_front(self, item):
+        """Step 9. Insert at position 0."""
+        self._items.insert(0, item)
+
+    def add_rear(self, item):
+        """Step 10. Append at the end."""
+        self._items.append(item)
+
+    def remove_front(self):
+        """Step 11. Remove and return index 0. IndexError when empty."""
+        if self.is_empty():
+            raise IndexError("remove_front on empty deque")
+        return self._items.pop(0)
+
+    def remove_rear(self):
+        """Step 12. Remove and return the last item. IndexError when empty."""
+        if self.is_empty():
+            raise IndexError("remove_rear on empty deque")
+        return self._items.pop()
+
+    def is_empty(self):
+        """Step 13. True when there is nothing in the deque."""
+        return len(self._items) == 0
+
+    def size(self):
+        """Step 14. Return how many items are held."""
+        return len(self._items)
+
+
+def is_palindrome(text):
+    """Step 15. True when text reads the same both ways.
+
+    Ignore anything that is not a letter, and ignore case. Load the letters
+    into a Deque, then compare front against rear until one or zero letters
+    remain. A word of odd length ends with one letter in the middle, which
+    always matches itself, so stop while size is greater than 1.
+    """
+    letters = Deque()
+    for char in text:
+        if char.isalpha():
+            letters.add_rear(char.lower())
+
+    while letters.size() > 1:
+        if letters.remove_front() != letters.remove_rear():
+            return False
+    return True
     def dequeue(self):
         """Step 3. Remove and return the front item. IndexError when empty.
 
